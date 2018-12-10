@@ -1,15 +1,20 @@
 #include "Board.h"
+#include <string>
+
+using namespace std;
+
+#define TILE_TYPES 3
 
 typedef struct 
 {
 	SDL_Texture * texture;
 } 
 images;
-images tileTex[4], tileTexOn[4];
+images tileTex[TILE_TYPES], tileTexOn[TILE_TYPES];
 
 
 typedef struct{
-    int texIndex;
+    int tileType;
     int orientation;
 	//udlr
     bool connections[4];
@@ -25,14 +30,32 @@ tile board[5][5];
 position source;
 
 Board::Board(){
+	int k=0;
 	for (int i=0; i<5; i++){
 		for (int j=0; j<5; j++){
-			board[i][j].texIndex = 0;
+			board[i][j].tileType = k;
+			k++;
+			if (k >= TILE_TYPES)
+				k=0;
 			board[i][j].orientation = 0;
-			board[i][j].connections[0] = false;
-			board[i][j].connections[1] = true;
-			board[i][j].connections[2] = false;
-			board[i][j].connections[3] = true;
+			if (board[i][j].tileType == 0){
+				board[i][j].connections[0] = false;
+				board[i][j].connections[1] = true;
+				board[i][j].connections[2] = false;
+				board[i][j].connections[3] = true;
+			}
+			if (board[i][j].tileType == 1){
+				board[i][j].connections[0] = false;
+				board[i][j].connections[1] = false;
+				board[i][j].connections[2] = true;
+				board[i][j].connections[3] = true;
+			}
+			if (board[i][j].tileType == 2){
+				board[i][j].connections[0] = false;
+				board[i][j].connections[1] = true;
+				board[i][j].connections[2] = true;
+				board[i][j].connections[3] = true;
+			}
 			board[i][j].turnedOn = false;
 		}
 	}
@@ -43,12 +66,14 @@ Board::Board(){
 void Board::init(SDL_Renderer* renderer){
 	IMG_Init(IMG_INIT_PNG);
 	SDL_Surface *   surface;
-	for (int i=0; i<4; i++){
-		surface = IMG_Load("romfs:/images/tile0.png");
+	for (int i=0; i<TILE_TYPES; i++){
+		string off = "romfs:/images/tile" + to_string(i) + ".png";
+		string on = "romfs:/images/tileOn" + to_string(i) + ".png";
+		surface = IMG_Load(off.c_str());
 		tileTex[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
 		SDL_FreeSurface(surface);
 		
-		surface = IMG_Load("romfs:/images/tileOn0.png");
+		surface = IMG_Load(on.c_str());
 		tileTexOn[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
 		SDL_FreeSurface(surface);
 	}
@@ -107,7 +132,7 @@ void Board::rotateTile(int x, int y){
 void Board::draw(SDL_Renderer* renderer){
 	for (int i=0; i<5; i++){
 		for (int j=0; j<5; j++){
-			int k=board[i][j].texIndex;
+			int k=board[i][j].tileType;
 			if (board[i][j].turnedOn)
 				renderTextureRotated(renderer, tileTexOn[k].texture, 332+124*i, 52+124*j, board[i][j].orientation*90);
 			else
