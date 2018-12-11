@@ -3,7 +3,7 @@
 
 using namespace std;
 
-#define TILE_TYPES 3
+#define TILE_TYPES 4
 
 typedef struct 
 {
@@ -55,6 +55,12 @@ Board::Board(){
 				board[i][j].connections[1] = true;
 				board[i][j].connections[2] = true;
 				board[i][j].connections[3] = true;
+			}
+			if (board[i][j].tileType == 3){
+				board[i][j].connections[0] = false;
+				board[i][j].connections[1] = true;
+				board[i][j].connections[2] = false;
+				board[i][j].connections[3] = false;
 			}
 			board[i][j].turnedOn = false;
 		}
