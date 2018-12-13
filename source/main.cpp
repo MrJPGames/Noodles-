@@ -4,6 +4,7 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_TTF.h>
 #include "Board.h"
 #include "GFX.h"
 
@@ -23,6 +24,10 @@ image background, cursor;
 SDL_Window *    window;
 SDL_Renderer *  renderer;
 SDL_Surface *   surface;
+
+TTF_Font* font;
+
+int lvl=0;
 
 int curX=0, curY=0;
 
@@ -60,6 +65,9 @@ void manageInput()
 	if (kDown & KEY_RIGHT)
 		curX++;
 
+	if (kDown & KEY_Y)
+		brd.loadBoard("romfs:/levels/5x5.json", ++lvl);
+
 	if (curX < 0)
 		curX=4;
 	if (curX > 4)
@@ -69,8 +77,12 @@ void manageInput()
 	if (curY > 4)
 		curY=0;
 
-	if (kDown & KEY_A)
+	if (kDown & KEY_A){
 		brd.rotateTile(curX, curY);
+		if (brd.getIsSolved()){
+			brd.loadBoard("romfs:/levels/5x5.json", ++lvl);
+		}
+	}
 }
 
 
@@ -81,6 +93,7 @@ int main(int argc, char **argv)
 	SDL_Init(SDL_INIT_EVERYTHING);
 	// Initialize
 	IMG_Init(IMG_INIT_PNG);
+	TTF_Init();
 	window = SDL_CreateWindow("Main-Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1080, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
@@ -92,7 +105,10 @@ int main(int argc, char **argv)
 	cursor.texture = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_FreeSurface(surface);
 
-	brd.init(renderer);
+	font = TTF_OpenFont("romfs:/fonts/OpenSans.ttf", 24);
+
+	brd.init(renderer, font);
+	brd.loadBoard("romfs:/levels/5x5.json", lvl);
 
 	// Game loop:
 	while (appletMainLoop())
@@ -108,6 +124,8 @@ int main(int argc, char **argv)
 	//On detruit la fenètre
 	SDL_DestroyWindow(window);
 	IMG_Quit();	
+    TTF_CloseFont(font);
+	TTF_Quit();
 	SDL_Quit();
 	romfsExit();
 
