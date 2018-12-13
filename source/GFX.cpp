@@ -53,24 +53,15 @@ void renderText(SDL_Renderer* renderer, TTF_Font* fnt, int destX, int destY, str
         return;
     SDL_Color White = {0, 0, 0};  
     SDL_Surface* surfaceMessage = TTF_RenderText_Blended_Wrapped(fnt, s.c_str(), White, 1280); 
-    SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage); //now you can convert it into a texture
-
-    int w,h;
-    w = surfaceMessage->w;
-    h = surfaceMessage->h;
-    SDL_Rect rect;
-    rect.x = 0;
-    rect.y = 0;
-    rect.w = w;
-    rect.h = h;
+    SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 
 	SDL_Rect dest;
 	dest.x = destX;
 	dest.y = destY;
-	dest.w = w;
-	dest.h = h;
+	dest.w = surfaceMessage->w;
+	dest.h = surfaceMessage->h;
 
-    SDL_RenderCopy(renderer, Message, &dest, &rect); 
+    SDL_RenderCopy(renderer, Message, NULL, &dest); 
 
     //Free surface and texture
     SDL_FreeSurface(surfaceMessage);
