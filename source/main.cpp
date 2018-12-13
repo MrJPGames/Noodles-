@@ -105,7 +105,7 @@ int main(int argc, char **argv)
 	cursor.texture = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_FreeSurface(surface);
 
-	font = TTF_OpenFont("romfs:/fonts/OpenSans.ttf", 24);
+	font = TTF_OpenFont("romfs:/fonts/OpenSans.ttf", 36);
 
 	brd.init(renderer, font);
 	brd.loadBoard("romfs:/levels/5x5.json", lvl);
