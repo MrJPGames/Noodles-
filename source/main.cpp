@@ -31,6 +31,8 @@ int lvl=0;
 
 int curX=0, curY=0;
 
+bool buttonControlled = false;
+
 bool downTouchInBox(touchPosition touch, int x1, int y1, int x2, int y2)
 {
 	int tx=touch.px;
@@ -45,7 +47,8 @@ bool downTouchInBox(touchPosition touch, int x1, int y1, int x2, int y2)
 void updateScreen(){
 	SDL_RenderClear(renderer);
 	renderTexture(renderer, background.texture, 0, 0);
-	renderTexture(renderer, cursor.texture, 332+124*curX, 52+124*curY);
+	if (buttonControlled)
+		renderTexture(renderer, cursor.texture, 332+124*curX, 52+124*curY);
 	brd.draw(renderer);
 	SDL_RenderPresent(renderer);
 }
@@ -56,14 +59,23 @@ void manageInput()
 	kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 	hidTouchRead(&Stylus, 0);
 
-	if (kDown & KEY_DOWN)
+	if (kDown & KEY_DOWN){
 		curY++;
-	if (kDown & KEY_UP)
+		buttonControlled = true;
+	}
+	if (kDown & KEY_UP){
 		curY--;
-	if (kDown & KEY_LEFT)
+		buttonControlled = true;
+	}
+	if (kDown & KEY_LEFT){
 		curX--;
-	if (kDown & KEY_RIGHT)
+		buttonControlled = true;
+	}
+	if (kDown & KEY_RIGHT){
 		curX++;
+		buttonControlled = true;
+	}
+
 
 	if (kDown & KEY_Y)
 		brd.loadBoard("romfs:/levels/5x5.json", ++lvl);
@@ -77,7 +89,18 @@ void manageInput()
 	if (curY > 4)
 		curY=0;
 
+	if (downTouchInBox(Stylus, 330, 50, 950, 670)){
+		buttonControlled = false;
+		int tx=(Stylus.px-330)/124;
+		int ty=(Stylus.py-50)/124;
+		brd.rotateTile(tx, ty);
+		if (brd.getIsSolved()){
+			brd.loadBoard("romfs:/levels/5x5.json", ++lvl);
+		}
+	}
+
 	if (kDown & KEY_A){
+		buttonControlled = true;
 		brd.rotateTile(curX, curY);
 		if (brd.getIsSolved()){
 			brd.loadBoard("romfs:/levels/5x5.json", ++lvl);
