@@ -31,7 +31,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		  := NXoodles
 BUILD		  := build
-SOURCES		  := source
+SOURCES		  := source include
 DATA		  := data
 INCLUDES	  := include
 EXEFS_SRC	  := exefs_src
