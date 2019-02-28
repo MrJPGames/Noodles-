@@ -31,6 +31,8 @@ int lvl=0;
 
 int curX=0, curY=0;
 
+float divX=0,divY=0;
+
 bool buttonControlled = false;
 
 bool downTouchInBox(touchPosition touch, int x1, int y1, int x2, int y2)
@@ -50,6 +52,18 @@ void updateScreen(){
 	if (buttonControlled)
 		renderTexture(renderer, cursor.texture, 332+124*curX, 52+124*curY);
 	brd.draw(renderer);
+	
+	SixAxisSensorValues sasv;
+	hidSixAxisSensorValuesRead(&sasv, CONTROLLER_P1_AUTO, 1);
+	divX-=sasv.gyroscope.z;
+	divY-=sasv.gyroscope.x;
+	renderText(renderer, font, 10, 200, "X: " + to_string(sasv.gyroscope.x));
+	renderText(renderer, font, 10, 240, "Y: " + to_string(sasv.gyroscope.y));
+	renderText(renderer, font, 10, 280, "Z: " + to_string(sasv.gyroscope.z));
+	
+	renderText(renderer, font, 10, 340, "dX: " + to_string(divX));
+	renderText(renderer, font, 10, 380, "dY: " + to_string(divY));
+	renderTexture(renderer, cursor.texture, (150*divX+640)-62, (100*divY+360)-62);
 	SDL_RenderPresent(renderer);
 }
 
@@ -58,6 +72,15 @@ void manageInput()
 	hidScanInput();
 	kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 	hidTouchRead(&Stylus, 0);
+
+	if (divX < -30)
+		divX = 60+divX;
+	if (divX > 30)
+		divX = -60+divX;
+	if (divY < -30)
+		divY = 60+divY;
+	if (divY > 30)
+		divY = -60+divY;
 
 	if (kDown & KEY_DOWN){
 		curY++;
@@ -74,6 +97,10 @@ void manageInput()
 	if (kDown & KEY_RIGHT){
 		curX++;
 		buttonControlled = true;
+	}
+	if (kDown & KEY_X){
+		divX=0;
+		divY=0;
 	}
 
 
@@ -99,6 +126,17 @@ void manageInput()
 		}
 	}
 
+	if (kDown & KEY_B){
+		buttonControlled = false;
+		int tx=((150*divX+640)-330)/124;
+		int ty=((100*divY+360)-50)/124;
+		if (tx >= 0 && tx <= 5 && ty >= 0 && ty <= 5)
+			brd.rotateTile(tx, ty);
+		if (brd.getIsSolved()){
+			brd.loadBoard("romfs:/levels/5x5.json", ++lvl);
+		}
+	}
+
 	if (kDown & KEY_A){
 		buttonControlled = true;
 		brd.rotateTile(curX, curY);
@@ -112,6 +150,15 @@ void manageInput()
 int main(int argc, char **argv)
 {
 	romfsInit();
+
+	u32 handles[4];
+	hidGetSixAxisSensorHandles(&handles[0], 2, CONTROLLER_PLAYER_1, TYPE_JOYCON_PAIR);
+	hidGetSixAxisSensorHandles(&handles[2], 1, CONTROLLER_PLAYER_1, TYPE_PROCONTROLLER);
+	hidGetSixAxisSensorHandles(&handles[3], 1, CONTROLLER_HANDHELD, TYPE_HANDHELD);
+	hidStartSixAxisSensor(handles[0]);
+	hidStartSixAxisSensor(handles[1]);
+	hidStartSixAxisSensor(handles[2]);
+	hidStartSixAxisSensor(handles[3]);
 	
 	SDL_Init(SDL_INIT_EVERYTHING);
 	// Initialize
