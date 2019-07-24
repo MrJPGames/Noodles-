@@ -279,7 +279,7 @@ int main(int argc, char **argv)
 	font = TTF_OpenFont("romfs:/fonts/OpenSans.ttf", 48);
 	bigFont = TTF_OpenFont("romfs:/fonts/OpenSans.ttf", 72);
 
-	brd.init(renderer, font);
+	brd.init(renderer, font, "romfs:/levels/5x5.json");
 	brd.loadBoard("romfs:/levels/5x5.json", 0);
 
 	menu.init(font, bigFont, "romfs:/levels/5x5.json");

@@ -12,7 +12,7 @@ class Board{
 	public:
 		Board();
         void rotateTile(int x, int y);
-		void init(SDL_Renderer* renderer, TTF_Font* fnt);
+		void init(SDL_Renderer* renderer, TTF_Font* fnt, string inFile);
 		void loadBoard(string s, int i);
 		void loadNextBoard(string s);
 		void draw(SDL_Renderer* renderer);
@@ -32,6 +32,7 @@ class Board{
 		int currentLevel = -1;
 		bool isSolved=false;
 		TTF_Font* font;
+		int levelCount = -1;
 };
 
 #endif

@@ -76,7 +76,7 @@ void Board::setTileConnections(int x, int y){
 	}
 }
 
-void Board::init(SDL_Renderer* renderer, TTF_Font* fnt){
+void Board::init(SDL_Renderer* renderer, TTF_Font* fnt, string inFile){
 	font = fnt;
 	IMG_Init(IMG_INIT_PNG);
 	SDL_Surface *   surface;
@@ -96,6 +96,15 @@ void Board::init(SDL_Renderer* renderer, TTF_Font* fnt){
 		tileTexPS[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
 		SDL_FreeSurface(surface);
 	}
+
+	//Init total level count
+	std::ifstream t(inFile);
+	std::string jsonText((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+
+	json_object * jobj = json_tokener_parse(jsonText.c_str());
+
+    levelCount = json_object_array_length(jobj);
+	json_object_put(jobj);
 }
 
 void Board::loadBoard(string inFile, int puzzleNum){
@@ -145,7 +154,11 @@ void Board::loadBoard(string inFile, int puzzleNum){
 }
 
 void Board::loadNextBoard(string s){
-	loadBoard(s, currentLevel+1);
+	if (currentLevel < levelCount-1){
+		loadBoard(s, currentLevel+1);
+	}else{
+		loadBoard(s, 0);
+	}
 }
 
 void Board::setBoardPieces(string str){
