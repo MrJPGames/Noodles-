@@ -12,7 +12,7 @@ typedef struct
 	SDL_Texture * texture;
 } 
 images;
-images tileTex[TILE_TYPES], tileTexOn[TILE_TYPES];
+images tileTex[TILE_TYPES], tileTexOn[TILE_TYPES], tileTexPS[TILE_TYPES];
 
 
 typedef struct{
@@ -83,6 +83,7 @@ void Board::init(SDL_Renderer* renderer, TTF_Font* fnt){
 	for (int i=0; i<TILE_TYPES; i++){
 		string off = "romfs:/images/tile" + to_string(i) + ".png";
 		string on = "romfs:/images/tileOn" + to_string(i) + ".png";
+		string ps = "romfs:/images/tilePS" + to_string(i) + ".png";
 		surface = IMG_Load(off.c_str());
 		tileTex[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
 		SDL_FreeSurface(surface);
@@ -90,11 +91,16 @@ void Board::init(SDL_Renderer* renderer, TTF_Font* fnt){
 		surface = IMG_Load(on.c_str());
 		tileTexOn[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
 		SDL_FreeSurface(surface);
+
+		surface = IMG_Load(ps.c_str());
+		tileTexPS[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
+		SDL_FreeSurface(surface);
 	}
 }
 
 void Board::loadBoard(string inFile, int puzzleNum){
 	reset();
+	currentLevel = puzzleNum;
 	//Read file
 	std::ifstream t(inFile);
 	std::string jsonText((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
@@ -103,28 +109,24 @@ void Board::loadBoard(string inFile, int puzzleNum){
 
 	json_object * puzzleJson;
 	if (json_object_is_type(jobj, json_type_array)){
-		if (json_object_is_type(jobj, json_type_array)){
-			board[0][0].tileType = 1; 
-			puzzleJson = json_object_array_get_idx(jobj, puzzleNum);
+		board[0][0].tileType = 1; 
+		puzzleJson = json_object_array_get_idx(jobj, puzzleNum);
 
-			json_object_object_foreach(puzzleJson, key, val) {
-				if (json_object_is_type(val, json_type_int)) {
-					minMoves = json_object_get_int(val);
-				}
-				if (json_object_is_type(val, json_type_string)) {
-					string stringValue(json_object_get_string(val));
-					if (strcmp(key, "pieces") == 0){
-						setBoardPieces(stringValue);
-					}else if (strcmp(key, "orientations") == 0){
-						setBoardOrientations(stringValue);
-					}else if (strcmp(key, "source") == 0){
-						setBoardSource(stringValue);
-					}
+		json_object_object_foreach(puzzleJson, key, val) {
+			if (json_object_is_type(val, json_type_int)) {
+				minMoves = json_object_get_int(val);
+			}
+			if (json_object_is_type(val, json_type_string)) {
+				string stringValue(json_object_get_string(val));
+				if (strcmp(key, "pieces") == 0){
+					setBoardPieces(stringValue);
+				}else if (strcmp(key, "orientations") == 0){
+					setBoardOrientations(stringValue);
+				}else if (strcmp(key, "source") == 0){
+					setBoardSource(stringValue);
 				}
 			}
 		}
-		//if (json_object_is_type(jobj, json_type_array))
-		//	json_object_put(puzzleJson);
 	}
 
 	for (int x=0; x<5; x++){
@@ -140,6 +142,10 @@ void Board::loadBoard(string inFile, int puzzleNum){
 
 	//Free memory after use
 	json_object_put(jobj);
+}
+
+void Board::loadNextBoard(string s){
+	loadBoard(s, currentLevel+1);
 }
 
 void Board::setBoardPieces(string str){
@@ -236,14 +242,17 @@ void Board::nextOrientation(int x, int y){
 }
 
 void Board::draw(SDL_Renderer* renderer){
-	renderText(renderer, font, 20, 20, "Moves: " + to_string(moveCount) + "\nMin moves: " + to_string(minMoves));
+	renderText(renderer, font, 20, 20, "Level: " + to_string(currentLevel+1) + "\nMoves: " + to_string(moveCount) + "\nMin moves: " + to_string(minMoves));
 	for (int i=0; i<5; i++){
 		for (int j=0; j<5; j++){
 			int k=board[i][j].tileType;
-			if (board[i][j].turnedOn)
-				renderTextureRotated(renderer, tileTexOn[k].texture, 332+124*i, 52+124*j, board[i][j].orientation*90);
+
+			if (i == source.x && j == source.y)
+				renderTextureRotated(renderer, tileTexPS[k].texture, 498+186*i, 78+186*j, board[i][j].orientation*90);
+			else if (board[i][j].turnedOn)
+				renderTextureRotated(renderer, tileTexOn[k].texture, 498+186*i, 78+186*j, board[i][j].orientation*90);
 			else
-				renderTextureRotated(renderer, tileTex[k].texture, 332+124*i, 52+124*j, board[i][j].orientation*90);
+				renderTextureRotated(renderer, tileTex[k].texture, 498+186*i, 78+186*j, board[i][j].orientation*90);
 		}
 	}
 }

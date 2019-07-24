@@ -14,6 +14,7 @@ class Board{
         void rotateTile(int x, int y);
 		void init(SDL_Renderer* renderer, TTF_Font* fnt);
 		void loadBoard(string s, int i);
+		void loadNextBoard(string s);
 		void draw(SDL_Renderer* renderer);
 		int getMinMoves();
 		bool getIsSolved();
@@ -28,6 +29,7 @@ class Board{
 		void nextOrientation(int x, int y);
 		void updateWinState();
 		int minMoves, moveCount;
+		int currentLevel = -1;
 		bool isSolved=false;
 		TTF_Font* font;
 };

@@ -31,7 +31,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		  := NXoodles
 BUILD		  := build
-SOURCES		  := source include
+SOURCES		  := source
 DATA		  := data
 INCLUDES	  := include
 EXEFS_SRC	  := exefs_src
@@ -60,7 +60,7 @@ LIBS	:=  -lSDL2_image -lSDL2_mixer -lSDL2 \
 			-lpng -lz -ljpeg \
 			-lglad -lEGL -lglapi -ldrm_nouveau -lstdc++ \
 			-lvorbisidec -logg -lmpg123 -lmodplug \
-			-lnx -lm -lfreetype -lbz2 -ljson-c -lSDL2_ttf -lfreetype -lbz2
+			-lnx -lm -lfreetype -lbz2 -ljson-c -lSDL2_ttf -lfreetype -lbz2 -lwebp
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
