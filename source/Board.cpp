@@ -242,7 +242,7 @@ void Board::nextOrientation(int x, int y){
 }
 
 void Board::draw(SDL_Renderer* renderer){
-	renderText(renderer, font, 20, 20, "Level: " + to_string(currentLevel+1) + "\nMoves: " + to_string(moveCount) + "\nMin moves: " + to_string(minMoves));
+	renderText(renderer, font, 20, 20, "Level: " + to_string(currentLevel+1) + "\nMoves: " + to_string(moveCount));
 	for (int i=0; i<5; i++){
 		for (int j=0; j<5; j++){
 			int k=board[i][j].tileType;

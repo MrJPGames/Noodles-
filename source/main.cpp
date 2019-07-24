@@ -123,8 +123,6 @@ void manageInput(){
 				curX++;
 				buttonControlled = true;
 			}
-			if (kDown & KEY_Y)
-				brd.loadNextBoard("romfs:/levels/5x5.json");
 			if (curX < 0)
 				curX=4;
 			if (curX > 4)
@@ -294,10 +292,6 @@ int main(int argc, char **argv)
 
 		if (kDown & KEY_PLUS)
 			break;
-		if (kDown & KEY_MINUS)
-			mode++;
-		if (mode > 10)
-			mode = 0;
 	}
 
 	//On detruit la fenètre
