@@ -143,14 +143,31 @@ void manageInput(){
 				buttonControlled = false;
 				int tx=(Stylus.px-330)/124;
 				int ty=(Stylus.py-50)/124;
-				brd.rotateTile(tx, ty);
+				brd.rotateTile(tx, ty, 1);
+				Mix_PlayChannel(-1, rotate, 0);
 				if (brd.getIsSolved()){
 					mode = SOLV_STATE;
 				}
 			}
 			if (kDown & KEY_A){
 				buttonControlled = true;
-				brd.rotateTile(curX, curY);
+				brd.rotateTile(curX, curY, 1);
+				Mix_PlayChannel(-1, rotate, 0);
+				if (brd.getIsSolved()){
+					mode = SOLV_STATE;
+					for (int i=0; i<128; i+=4){
+						SDL_RenderClear(renderer);
+						renderTexture(renderer, background.texture, 0, 0);
+						renderGame();
+						renderFadeOverlay(renderer, 0, 0, 0, i);
+						SDL_RenderPresent(renderer);
+					}
+					Mix_PlayChannel(-1, win, 0);
+				}
+			}
+			if (kDown & KEY_B){
+				buttonControlled = true;
+				brd.rotateTile(curX, curY, -1);
 				Mix_PlayChannel(-1, rotate, 0);
 				if (brd.getIsSolved()){
 					mode = SOLV_STATE;

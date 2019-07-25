@@ -11,7 +11,7 @@ using namespace std;
 class Board{
 	public:
 		Board();
-        void rotateTile(int x, int y);
+        void rotateTile(int x, int y, int dir);
 		void init(SDL_Renderer* renderer, TTF_Font* fnt, string inFile);
 		void loadBoard(string s, int i);
 		void loadNextBoard(string s);

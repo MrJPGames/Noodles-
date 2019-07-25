@@ -214,11 +214,20 @@ void Board::updatePowerState(int x, int y){
 		updatePowerState(x+1,y);
 }
 
-void Board::rotateTile(int x, int y){
+void Board::rotateTile(int x, int y, int dir){
 	resetPowerState();
 	moveCount++;
-	board[x][y].orientation++;
-	nextOrientation(x,y);
+	if (dir == 1){
+		board[x][y].orientation++;
+		nextOrientation(x,y);
+	}else{
+		board[x][y].orientation++;
+		nextOrientation(x,y);
+		board[x][y].orientation++;
+		nextOrientation(x,y);
+		board[x][y].orientation++;
+		nextOrientation(x,y);
+	}
 
 	updatePowerState(source.x, source.y);
 	updateWinState();
