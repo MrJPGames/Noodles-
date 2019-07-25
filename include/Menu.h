@@ -22,9 +22,9 @@ class Menu{
 	private:
         int menuPos = 0;
         int levelCount = -1;
-		TTF_Font* font;
-		TTF_Font* b_font;
-		int state = LVLS_STATE;
+	TTF_Font* font;
+	TTF_Font* b_font;
+	int state = LVLS_STATE;
 };
 
 #endif

@@ -262,7 +262,6 @@ void manageInput(){
 						renderFadeOverlay(renderer, 0, 0, 0, i);
 						SDL_RenderPresent(renderer);
 					}
-					brd.loadNextBoard("romfs:/levels/5x5.json");
 					for (int i=255; i>0; i-=17){
 						SDL_RenderClear(renderer);
 						renderTexture(renderer, background.texture, 0, 0);
