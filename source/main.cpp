@@ -14,14 +14,19 @@
 #define GAME_STATE 2
 #define SOLV_STATE 3
 
+#define MAX_TIMER 30
+
 Board brd;
 Menu menu;
+
+int heldTimer = -1;
+int maxTimer = MAX_TIMER;
 
 //Sets the current mode (state) of the game
 int mode = TITL_STATE;
 
 touchPosition Stylus;
-u32 kDown;
+u32 kDown, kHeld;
 
 typedef struct 
 {
@@ -37,6 +42,8 @@ SDL_Surface *   surface;
 
 TTF_Font* font;
 TTF_Font* bigFont;
+
+Mix_Chunk *confirm, *rotate, *win;
 
 int curX=0, curY=0;
 
@@ -103,6 +110,7 @@ void updateScreen(){
 void manageInput(){
 	hidScanInput();
 	kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+	kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
 	hidTouchRead(&Stylus, 0);
 
 	switch(mode){
@@ -143,6 +151,7 @@ void manageInput(){
 			if (kDown & KEY_A){
 				buttonControlled = true;
 				brd.rotateTile(curX, curY);
+				Mix_PlayChannel(-1, rotate, 0);
 				if (brd.getIsSolved()){
 					mode = SOLV_STATE;
 					for (int i=0; i<128; i+=4){
@@ -152,18 +161,79 @@ void manageInput(){
 						renderFadeOverlay(renderer, 0, 0, 0, i);
 						SDL_RenderPresent(renderer);
 					}
+					Mix_PlayChannel(-1, win, 0);
 				}
 			}
 			break;
 		case MENU_STATE:
+			heldTimer--;
 			if (kDown & KEY_DOWN){
 				menu.moveSelection(1);
+				Mix_PlayChannel(-1, rotate, 0);
+				maxTimer = MAX_TIMER;
+				heldTimer = maxTimer;
 			}
 			if (kDown & KEY_UP){
 				menu.moveSelection(-1);
+				Mix_PlayChannel(-1, rotate, 0);	
+				maxTimer = MAX_TIMER;
+				heldTimer = maxTimer;
+			}
+			if (kDown & KEY_RIGHT){
+				menu.moveSelection(10);
+				Mix_PlayChannel(-1, rotate, 0);
+				maxTimer = MAX_TIMER;
+				heldTimer = maxTimer;
+			}
+			if (kDown & KEY_LEFT){
+				menu.moveSelection(-10);
+				Mix_PlayChannel(-1, rotate, 0);
+				maxTimer = MAX_TIMER;
+				heldTimer = maxTimer;
+			}
+			if (kHeld & KEY_DOWN){
+				if (heldTimer < 0){
+					maxTimer = maxTimer/1.5;
+					if (maxTimer == 0)
+						maxTimer=1;
+					heldTimer = maxTimer;
+					menu.moveSelection(1);
+					Mix_PlayChannel(-1, rotate, 0);
+				}
+			}
+			if (kHeld & KEY_UP){
+				if (heldTimer < 0){
+					maxTimer = maxTimer/1.5;
+					if (maxTimer == 0)
+						maxTimer=1;
+					heldTimer = maxTimer;
+					menu.moveSelection(-1);
+					Mix_PlayChannel(-1, rotate, 0);
+				}
+			}
+			if (kHeld & KEY_LEFT){
+				if (heldTimer < 0){
+					maxTimer = maxTimer/1.5;
+					if (maxTimer == 0)
+						maxTimer=1;
+					heldTimer = maxTimer;
+					menu.moveSelection(-10);
+					Mix_PlayChannel(-1, rotate, 0);
+				}
+			}
+			if (kHeld & KEY_RIGHT){
+				if (heldTimer < 0){
+					maxTimer = maxTimer/1.5;
+					if (maxTimer == 0)
+						maxTimer=1;
+					heldTimer = maxTimer;
+					menu.moveSelection(10);
+					Mix_PlayChannel(-1, rotate, 0);
+				}
 			}
 			if (kDown & KEY_A){
 				if (menu.selectOption()){
+					Mix_PlayChannel(-1, confirm, 0);
 					int lvl = menu.getSelectedLevel();
 					brd.loadBoard("romfs:/levels/5x5.json", lvl);
 					mode = GAME_STATE;
@@ -189,6 +259,7 @@ void manageInput(){
 		case SOLV_STATE:
 			if (kDown & KEY_A){
 				mode = GAME_STATE;
+				Mix_PlayChannel(-1, confirm, 0);
 				for (int i=0; i<255; i+=17){
 					SDL_RenderClear(renderer);
 					renderTexture(renderer, background.texture, 0, 0);
@@ -207,6 +278,7 @@ void manageInput(){
 			}
 			if (kDown & KEY_B){
 				mode = MENU_STATE;
+				Mix_PlayChannel(-1, confirm, 0);
 				for (int i=0; i<255; i+=17){
 					SDL_RenderClear(renderer);
 					renderTexture(renderer, background.texture, 0, 0);
@@ -226,6 +298,7 @@ void manageInput(){
 			break;
 		case TITL_STATE:
 			if (kDown & KEY_A){
+				Mix_PlayChannel(-1, confirm, 0);
 				mode = MENU_STATE;
 				for (int i=0; i<255; i+=17){
 					SDL_RenderClear(renderer);
@@ -254,6 +327,7 @@ int main(int argc, char **argv)
 	// Initialize
 	IMG_Init(IMG_INIT_PNG);
 	TTF_Init();
+    Mix_Init(0);
 	window = SDL_CreateWindow("Main-Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1080, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
@@ -284,6 +358,13 @@ int main(int argc, char **argv)
 
 	menu.init(font, bigFont, "romfs:/levels/5x5.json");
 
+	//Sound init
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 4096);
+
+	confirm = Mix_LoadWAV("romfs:/sounds/confirm.wav");
+	rotate = Mix_LoadWAV("romfs:/sounds/rotate.wav");
+	win = Mix_LoadWAV("romfs:/sounds/win.wav");
+
 	// Game loop:
 	while (true)
 	{
@@ -298,6 +379,11 @@ int main(int argc, char **argv)
 	SDL_DestroyWindow(window);
 	IMG_Quit();	
     TTF_CloseFont(font);
+    TTF_CloseFont(bigFont);
+    Mix_FreeChunk(confirm);
+    Mix_FreeChunk(rotate);
+    Mix_FreeChunk(win);
+    Mix_CloseAudio();
 	TTF_Quit();
 	SDL_Quit();
 	romfsExit();
