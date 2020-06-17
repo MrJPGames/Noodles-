@@ -38,7 +38,7 @@ EXEFS_SRC	  := exefs_src
 ROMFS         := romfs
 APP_TITLE     := Noodles!
 APP_AUTHOR    := MrJPGames
-APP_VERSION   := 1.0
+APP_VERSION   := 1.1
 ICON 		  := icon.jpg
 
 #---------------------------------------------------------------------------------
@@ -58,9 +58,9 @@ LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*
 
 LIBS	:=  -lSDL2_image -lSDL2_mixer -lSDL2 \
 			-lpng -lz -ljpeg -lopusfile -lopus  \
-			-lglad -lEGL -lglapi -ldrm_nouveau -lstdc++ \
+			-lEGL -lglapi -ldrm_nouveau -lstdc++ \
 			-lvorbisidec -logg -lmpg123 -lmodplug \
-			-lnx -lm -lfreetype -lbz2 -ljson-c -lSDL2_ttf -lfreetype -lbz2 -lwebp
+			-lm -lfreetype -lbz2 -ljson-c -lSDL2_ttf -lfreetype -lbz2 -lwebp -lnx
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
